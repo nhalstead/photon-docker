@@ -1,16 +1,19 @@
 #!/bin/bash
 
+EXTRACT_COUNTRY="all"
+USER_AGENT="docker: tonsnoei/photon-geocoder"
 
 # Download elasticsearch index
 if [ ! -d "/photon/photon_data/elasticsearch" ]; then
     echo "Downloading search index"
 
-    # Let graphhopper know where the traffic is coming from
-    USER_AGENT="docker: tonsnoei/photon-geocoder"
-    # If you want to install a specific region only, enable the line below and disable the current 'wget' row.
-    # Take a look at http://download1.graphhopper.com/public/extracts/by-country-code for your country
-    # wget --user-agent="$USER_AGENT" -O - http://download1.graphhopper.com/public/extracts/by-country-code/nl/photon-db-nl-latest.tar.bz2 | bzip2 -cd | tar x
-    wget --user-agent="$USER_AGENT" -O - http://download1.graphhopper.com/public/photon-db-latest.tar.bz2 | bzip2 -cd | tar x
+    if [ "$EXTRACT_COUNTRY" == "all" ]; then
+        # Download all countries
+        wget --user-agent="$USER_AGENT" -O - http://download1.graphhopper.com/public/photon-db-latest.tar.bz2 | bzip2 -cd | tar x
+    else
+        # Download specific country
+        wget --user-agent="$USER_AGENT" -O - http://download1.graphhopper.com/public/extracts/by-country-code/$EXTRACT_COUNTRY/photon-db-$EXTRACT_COUNTRY-latest.tar.bz2 | bzip2 -cd | tar x
+    fi
 fi
 
 # Start photon if elastic index exists
